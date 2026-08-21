@@ -11,5 +11,12 @@ def generate_embedding(text: str) -> list[float]:
     Generate a 384-dimensional embedding for the supplied text.
     """
     embedding = model.encode(text)
-
     return embedding.tolist()
+
+
+def generate_embeddings(texts: list[str]) -> list[list[float]]:
+    """
+    Generate embeddings for multiple text chunks.
+    """
+    embeddings = model.encode(texts)
+    return embeddings.tolist()

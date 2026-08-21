@@ -1,28 +1,33 @@
-from database import SessionLocal
-from ingestion import ingest_document
+from ingestion import load_document, chunk_text
 
 
-def main():
-    db = SessionLocal()
+def test_load_document():
+    text = load_document("data/company_policy.txt")
+
+    assert text
+    assert "Remote Work Policy" in text
+
+
+def test_chunk_text():
+    text = " ".join([f"word{i}" for i in range(1200)])
+
+    chunks = chunk_text(
+        text,
+        chunk_size=500,
+        overlap=50
+    )
+
+    assert len(chunks) == 3
+    assert len(chunks[0].split()) == 500
+    assert len(chunks[1].split()) == 500
+    assert len(chunks[2].split()) == 300
+
+
+def test_invalid_chunk_size():
+    text = "This is a test document."
 
     try:
-        document = ingest_document(
-            db=db,
-            filename="ai_architecture.txt",
-            content=(
-                "Artificial intelligence systems use machine learning, "
-                "large language models, embeddings, vector databases, "
-                "and retrieval augmented generation."
-            ),
-        )
-
-        print("Document stored successfully!")
-        print("Document ID:", document.id)
-        print("Filename:", document.filename)
-
-    finally:
-        db.close()
-
-
-if __name__ == "__main__":
-    main()
+        chunk_text(text, chunk_size=0)
+        assert False
+    except ValueError:
+        assert True

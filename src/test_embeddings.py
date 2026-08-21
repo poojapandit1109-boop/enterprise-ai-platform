@@ -1,10 +1,22 @@
-from embeddings import generate_embedding
+from embeddings import generate_embedding, generate_embeddings
 
 
-text = "Enterprise AI platform for document search"
+def test_generate_embedding():
+    text = "Employees can work remotely."
 
-embedding = generate_embedding(text)
+    embedding = generate_embedding(text)
 
-print("Embedding generated successfully!")
-print("Vector dimensions:", len(embedding))
-print("First 5 values:", embedding[:5])
+    assert len(embedding) == 384
+
+
+def test_generate_embeddings():
+    texts = [
+        "Employees can work remotely.",
+        "Employees must follow company policies.",
+        "Remote work requires manager approval.",
+    ]
+
+    embeddings = generate_embeddings(texts)
+
+    assert len(embeddings) == 3
+    assert all(len(embedding) == 384 for embedding in embeddings)
