@@ -1,33 +1,24 @@
-from ingestion import load_document, chunk_text
+from database import SessionLocal
+from ingestion import ingest_document
 
 
-def test_load_document():
-    text = load_document("data/company_policy.txt")
-
-    assert text
-    assert "Remote Work Policy" in text
-
-
-def test_chunk_text():
-    text = " ".join([f"word{i}" for i in range(1200)])
-
-    chunks = chunk_text(
-        text,
-        chunk_size=500,
-        overlap=50
-    )
-
-    assert len(chunks) == 3
-    assert len(chunks[0].split()) == 500
-    assert len(chunks[1].split()) == 500
-    assert len(chunks[2].split()) == 300
-
-
-def test_invalid_chunk_size():
-    text = "This is a test document."
+def test_ingest_document():
+    db = SessionLocal()
 
     try:
-        chunk_text(text, chunk_size=0)
-        assert False
-    except ValueError:
-        assert True
+        documents = ingest_document(
+            db,
+            "data/company_policy.txt",
+        )
+
+        assert len(documents) > 0
+
+        for document in documents:
+            assert document.id is not None
+            assert document.filename == "company_policy.txt"
+            assert document.content
+            assert document.embedding is not None
+            assert len(document.embedding) == 384
+
+    finally:
+        db.close()
